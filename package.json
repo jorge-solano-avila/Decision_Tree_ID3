@@ -1,0 +1,14 @@
+{
+  "name": "decision-tree-id3",
+  "version": "1.0.0",
+  "description": "id3 algorithm for build a decision tree",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "id3", "decision", "tree"
+  ],
+  "author": "jorge52an",
+  "license": "MIT"
+}
