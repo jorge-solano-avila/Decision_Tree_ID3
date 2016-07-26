@@ -63,3 +63,5 @@ var result = aux.result;
 var probabilities = aux.probabilities;
 
 var entropy = entropy( probabilities );
+
+//module.exports = decisionTree;
