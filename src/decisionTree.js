@@ -1,5 +1,5 @@
-var node = require( "./tree" ).node;
-var tree = require( "./tree" ).tree;
+var Node = require( "./tree" ).Node;
+var Tree = require( "./tree" ).Tree;
 
 var maxGain = function( gain )
 {
@@ -91,4 +91,141 @@ var values = function( data )
     }
 
     return result;
+};
+
+var isRoot = true;
+var treeID3 = null;
+
+var buildTree = function( parentT, tree, indexT, data ) 
+{
+    var aux = division( data.results );
+    var probabilities = aux.probabilities;
+
+    var entropyTotal = entropy( probabilities );
+    var gain = {};
+
+    for( var attribute in data.attributes )
+    {
+        var sum = 0;
+        var valuesD = division(data.attributes[attribute]).result;
+
+        for( var i = 0; i < valuesD.length; ++i )
+        {
+            var partials = [];
+
+            for( var j = 0; j < data.attributes[attribute].length; ++j )
+                if( data.attributes[attribute][j] === valuesD[i] )
+                    partials.push( data.results[j] );
+
+            var temp = division( partials );
+            var temp2 = entropy( temp.probabilities );
+            sum += partials.length / data.results.length * temp2;
+        }
+
+        gain[attribute] = entropyTotal - sum;
+    }
+
+    if( isRoot )
+    {
+        var max = maxGain( gain );
+        var valuesR = values( data )[max];
+
+        treeID3 = new Tree( max );
+        isRoot = false;
+        for( var i = 0; i < valuesR.length; ++i )
+        {
+            var value = null;
+            var flag = false;
+            var next = false;
+
+            treeID3.root.children.push( new Node( valuesR[i] ) );
+            treeID3.root.children[i].parent = treeID3;
+
+            for( var j = 0; j < data.attributes[max].length; ++j )
+                if( data.attributes[max][j] === valuesR[i] )
+                    if( !flag )
+                    {
+                        value = data.results[j];
+                        flag = true;
+                    }
+                    else if( data.results[j] !== value )
+                    {
+                        next = true;
+                        break;
+                    }
+            if( next )
+            {
+                var dataAux = JSON.parse( JSON.stringify( data ) );
+
+                for( var j = 0; j < dataAux.results.length; ++j )
+                    if( valuesR[i] !== dataAux.attributes[max][j] )
+                    {
+                        for( var attribute in dataAux.attributes )
+                            dataAux.attributes[attribute].splice( j, 1 );
+                        dataAux.results.splice( j, 1 );
+                        --j;
+                    }
+                delete dataAux.attributes[max];
+
+                buildTree( treeID3.root.children[i], treeID3.root.children[i].children, 0, dataAux );
+            }
+            else
+            {
+                treeID3.root.children[i].children.push( new Node( value ) );
+                treeID3.root.children[i].children[0].parent = treeID3.root.children[i];
+            }
+        }
+    }
+    else
+    {
+        var max = maxGain( gain );
+        var valuesR = values( data )[max];
+
+        tree.push( new Node( max ) );
+        tree[indexT].parent = parentT;
+
+        if( valuesR !== undefined )
+            for( var i = 0; i < valuesR.length; ++i )
+            {
+                var value = null;
+                var flag = false;
+                var next = false;
+
+                tree[indexT].children.push( new Node( valuesR[i] ) );
+                tree[indexT].children[i].parent = tree[indexT];
+
+                for( var j = 0; j < data.attributes[max].length; ++j )
+                    if( data.attributes[max][j] === valuesR[i] )
+                        if( !flag )
+                        {
+                            value = data.results[j];
+                            flag = true;
+                        }
+                        else if( data.results[j] !== value )
+                        {
+                            next = true;
+                            break;
+                        }
+                if( next )
+                {
+                    var dataAux = JSON.parse( JSON.stringify( data ) );
+                    for( var j = 0; j < dataAux.results.length; ++j )
+                        if( valuesR[i] !== dataAux.attributes[max][j] )
+                        {
+                            for (var attribute in dataAux.attributes)
+                                dataAux.attributes[attribute].splice(j, 1);
+                            dataAux.results.splice(j, 1);
+                            --j;
+                        }
+                    delete dataAux.attributes[max];
+
+                    buildTree( tree[indexT].children[i], tree[indexT].children[i].children, 0, dataAux );
+                }
+                else
+                {
+                    tree[indexT].children[i].children.push( new Node( value ) );
+                    tree[indexT].children[i].children[0].parent = tree[indexT].children[i];
+                }
+            }
+    }
 };
