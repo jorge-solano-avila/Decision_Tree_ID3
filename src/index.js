@@ -1,5 +1,6 @@
-'use strict';
+"use strict";
 
-module.exports = {
-    decisionTree: require( './decisionTree' )
+module.exports =
+{
+    decisionTree: require( "./decisionTree" )
 };
