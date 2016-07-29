@@ -1,19 +1,27 @@
-var node = require('./tree').node;
-var tree = require('./tree').tree;
+var node = require( "./tree" ).node;
+var tree = require( "./tree" ).tree;
 
-data =
+var maxGain = function( gain )
 {
-    attributes :
+    var max = 0;
+    var result = "";
+    for( var attribute in gain )
     {
-        gender : ['male', 'male', 'female', 'female', 'male', 'male', 'female', 'female', 'male', 'female'],
-        carOwnership : [0, 1, 1, 0, 1, 0, 1, 1, 2, 2],
-        travelCost : ['cheap', 'cheap', 'cheap', 'cheap', 'standard', 'standard', 'expensive', 'expensive', 'expensive'],
-        incomeLevel : ['low', 'medium', 'medium', 'low', 'medium', 'medium', 'medium', 'high', 'medium', 'high']
-    },
-    results : ['bus', 'bus', 'train', 'bus', 'bus', 'train', 'train', 'car', 'car', 'car']
+        result = attribute;
+        max = gain[attribute];
+        break;
+    }
+    for( var attribute in gain )
+        if( gain[attribute] > max )
+        {
+            max = gain[attribute];
+            result = attribute;
+        }
+
+    return result;
 };
 
-var entropy = function( probabilities )
+var entropy = function( probabilites )
 {
     var entropy = 0;
 
@@ -58,10 +66,29 @@ var division = function( results )
     };
 };
 
-var aux = division( data.results );
-var result = aux.result;
-var probabilities = aux.probabilities;
+var values = function( data )
+{
+    var result = {};
 
-var entropy = entropy( probabilities );
+    for( var attribute in data.attributes )
+    {
+        result[attribute] = [];
+        for( var i = 0; i < data.attributes[attribute].length; ++i )
+        {
+            var value = data.attributes[attribute][i];
+            var equal = false;
+            for( var j = 0; j < result[attribute].length; ++j )
+            {
+                if( value === result[attribute][j] )
+                {
+                    equal = true;
+                    break;
+                }
+            }
+            if( !equal )
+                result[attribute].push( value );
+        }
+    }
 
-//module.exports = decisionTree;
+    return result;
+};

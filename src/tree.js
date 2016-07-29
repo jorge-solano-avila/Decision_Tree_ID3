@@ -1,15 +1,17 @@
-function node( data )
+'use strict';
+
+function Node( data )
 {
     this.data = data;
     this.parent = null;
     this.children = [];
 }
 
-function tree( data )
+function Tree( data )
 {
-    var node = new node( data );
+    var node = new Node( data );
     this.root = node;
 }
 
-module.exports.node = node;
-module.exports.tree = tree;
+module.exports.Node = Node;
+module.exports.Tree = Tree;
